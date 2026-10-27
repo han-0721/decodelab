@@ -1,0 +1,47 @@
+name: CPU tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        include:
+          - python: "3.10"
+            torch: "torch==2.2.2"
+            numpy: "numpy<2"
+          - python: "3.12"
+            torch: "torch"
+            numpy: "numpy"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - name: Install CPU dependencies
+        run: |
+          python -m pip install "${{ matrix.torch }}" --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install "${{ matrix.numpy }}"
+          python -m pip install -e ".[dev]"
+      - name: Test numerical correctness and CLI
+        run: python -m pytest -q
+      - name: Lint and format
+        run: |
+          python -m ruff check .
+          python -m ruff format --check .
+      - name: Smoke documented commands
+        run: |
+          python -m decodelab trace
+          python -m decodelab check
+          python -m decodelab benchmark --prompt-len 8 --new-tokens 4 --warmup 0 --repeats 1
+      - name: Build wheel
+        run: python -m build --wheel

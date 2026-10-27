@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "decodelab"
+version = "0.1.0"
+description = "A readable decoder and reproducible KV cache experiments, from forward shapes to generation."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{name = "han-0721"}]
+dependencies = ["torch>=2.2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.8", "build>=1"]
+
+[project.scripts]
+decodelab = "decodelab.cli:main"
+
+[project.urls]
+Repository = "https://github.com/han-0721/decodelab"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
